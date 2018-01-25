@@ -67,6 +67,13 @@ export default function wrapPicker(Picker: React.ComponentClass<any>, defaultFor
       }
     }
 
+    handleClick = (e: React.FocusEventHandler<HTMLInputElement>) => {
+      const { onClick } = this.props;
+      if (onClick) {
+        onClick(e);
+      }
+    }
+
     focus() {
       this.picker.focus();
     }
@@ -134,6 +141,7 @@ export default function wrapPicker(Picker: React.ComponentClass<any>, defaultFor
           onOpenChange={this.handleOpenChange}
           onFocus={this.handleFocus}
           onBlur={this.handleBlur}
+          onClick={this.handleClick}
         />
       );
     }

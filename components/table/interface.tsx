@@ -2,8 +2,10 @@ import * as React from 'react';
 import { PaginationProps } from '../pagination';
 import { SpinProps } from '../spin';
 import { Store } from './createStore';
+import { RadioChangeEvent } from '../radio';
+import { CheckboxChangeEvent } from '../checkbox';
 
-export type CompareFn<T> = ((a: T, b: T) => number);
+export type CompareFn<T> = ((a: T, b: T, sortOrder?: 'ascend' | 'descend') => number);
 export type ColumnFilterItem = { text: string; value: string, children?: ColumnFilterItem[] };
 
 export interface ColumnProps<T> {
@@ -11,6 +13,7 @@ export interface ColumnProps<T> {
   key?: React.Key;
   dataIndex?: string;
   render?: (text: any, record: T, index: number) => React.ReactNode;
+  align?: 'left' | 'right' | 'center';
   filters?: ColumnFilterItem[];
   onFilter?: (value: any, record: T) => boolean;
   filterMultiple?: boolean;
@@ -25,10 +28,11 @@ export interface ColumnProps<T> {
   fixed?: boolean | ('left' | 'right');
   filterIcon?: React.ReactNode;
   filteredValue?: any[];
-  sortOrder?: boolean | ('ascend' | 'descend');
+  sortOrder?: 'ascend' | 'descend';
   children?: ColumnProps<T>[];
   onCellClick?: (record: T, event: any) => void;
   onCell?: (record: T) => any;
+  onHeaderCell?: (props: ColumnProps<T>) => any;
 }
 
 export interface TableComponents {
@@ -55,7 +59,13 @@ export interface TableLocale {
 }
 
 export type RowSelectionType = 'checkbox' | 'radio';
-export type SelectionSelectFn<T> = (record: T, selected: boolean, selectedRows: Object[]) => any;
+export type SelectionSelectFn<T> = (record: T, selected: boolean, selectedRows: Object[], nativeEvent: Event) => any;
+
+export interface TablePaginationConfig extends PaginationProps {
+  position?: 'top' | 'bottom' | 'both';
+}
+
+export type TableSelectWay = 'onSelect' | 'onSelectAll' | 'onSelectInvert';
 
 export interface TableRowSelection<T> {
   type?: RowSelectionType;
@@ -68,13 +78,14 @@ export interface TableRowSelection<T> {
   selections?: SelectionItem[] | boolean;
   hideDefaultSelections?: boolean;
   fixed?: boolean;
+  columnWidth?: string | number;
 }
 
 export interface TableProps<T> {
   prefixCls?: string;
   dropdownPrefixCls?: string;
   rowSelection?: TableRowSelection<T>;
-  pagination?: PaginationProps | false;
+  pagination?: TablePaginationConfig | false;
   size?: 'default' | 'middle' | 'small';
   dataSource?: T[];
   components?: TableComponents;
@@ -90,12 +101,13 @@ export interface TableProps<T> {
   expandRowByClick?: boolean;
   onExpandedRowsChange?: (expandedRowKeys: string[] | number[]) => void;
   onExpand?: (expanded: boolean, record: T) => void;
-  onChange?: (pagination: PaginationProps | boolean, filters: string[], sorter: Object) => any;
+  onChange?: (pagination: TablePaginationConfig | boolean, filters: string[], sorter: Object) => any;
   loading?: boolean | SpinProps;
   locale?: Object;
   indentSize?: number;
   onRowClick?: (record: T, index: number, event: Event) => any;
   onRow?: (record: T, index: number) => any;
+  onHeaderRow?: (columns: ColumnProps<T>[], index: number) => any;
   useFixedHeader?: boolean;
   bordered?: boolean;
   showHeader?: boolean;
@@ -114,10 +126,10 @@ export interface TableStateFilters {
 }
 
 export interface TableState<T> {
-  pagination: PaginationProps;
+  pagination: TablePaginationConfig;
   filters: TableStateFilters;
   sortColumn: ColumnProps<T> | null;
-  sortOrder: string;
+  sortOrder: 'ascend' | 'descend' | undefined;
 }
 
 export type SelectionItemSelectFn = (key: string[]) => any;
@@ -152,12 +164,21 @@ export interface SelectionBoxProps {
   type?: RowSelectionType;
   defaultSelection: string[];
   rowIndex: string;
+  name?: string;
   disabled?: boolean;
-  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  onChange: (e: RadioChangeEvent | CheckboxChangeEvent) => void;
 }
 
 export interface SelectionBoxState {
   checked?: boolean;
+}
+
+export interface SelectionInfo<T> {
+  selectWay: TableSelectWay;
+  record?: T;
+  checked?: boolean;
+  changeRowKeys?: React.Key[];
+  nativeEvent?: Event;
 }
 
 export interface FilterMenuProps<T> {

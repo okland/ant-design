@@ -31,10 +31,8 @@ const dimensionMap = {
 
 export type CollapseType = 'clickTrigger' | 'responsive';
 
-export interface SiderProps {
-  style?: React.CSSProperties;
+export interface SiderProps extends React.HTMLAttributes<HTMLDivElement> {
   prefixCls?: string;
-  className?: string;
   collapsible?: boolean;
   collapsed?: boolean;
   defaultCollapsed?: boolean;
@@ -46,13 +44,13 @@ export interface SiderProps {
   breakpoint?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 }
 
-export interface SliderState {
+export interface SiderState {
   collapsed?: boolean;
   below: boolean;
   belowShow?: boolean;
 }
 
-export interface SliderContext {
+export interface SiderContext {
   siderCollapsed: boolean;
 }
 
@@ -64,7 +62,7 @@ const generateId = (() => {
   };
 })();
 
-export default class Sider extends React.Component<SiderProps, SliderState> {
+export default class Sider extends React.Component<SiderProps, SiderState> {
   static __ANT_LAYOUT_SIDER: any = true;
 
   static defaultProps = {
@@ -203,16 +201,19 @@ export default class Sider extends React.Component<SiderProps, SliderState> {
         </div>
       ) : null
     );
+    // For collapsedWidth="40px"
+    // https://github.com/ant-design/ant-design/issues/10140
+    const siderWidthNumber = (siderWidth || 0).toString().replace(/px$/, '');
     const divStyle = {
       ...style,
-      flex: `0 0 ${siderWidth}px`,
-      maxWidth: `${siderWidth}px`, // Fix width transition bug in IE11
-      minWidth: `${siderWidth}px`, // https://github.com/ant-design/ant-design/issues/6349
-      width: `${siderWidth}px`,
+      flex: `0 0 ${siderWidthNumber}px`,
+      maxWidth: `${siderWidthNumber}px`, // Fix width transition bug in IE11
+      minWidth: `${siderWidthNumber}px`, // https://github.com/ant-design/ant-design/issues/6349
+      width: `${siderWidthNumber}px`,
     };
     const siderCls = classNames(className, prefixCls, {
       [`${prefixCls}-collapsed`]: !!this.state.collapsed,
-      [`${prefixCls}-has-trigger`]: !!trigger,
+      [`${prefixCls}-has-trigger`]: collapsible && trigger !== null && !zeroWidthTrigger,
       [`${prefixCls}-below`]: !!this.state.below,
       [`${prefixCls}-zero-width`]: siderWidth === 0 || siderWidth === '0' || siderWidth === '0px',
     });

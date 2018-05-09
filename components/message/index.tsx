@@ -7,7 +7,9 @@ let defaultTop: number;
 let messageInstance: any;
 let key = 1;
 let prefixCls = 'ant-message';
+let transitionName = 'move-up';
 let getContainer: () => HTMLElement;
+let maxCount: number;
 
 function getMessageInstance(callback: (i: any) => void) {
   if (messageInstance) {
@@ -16,9 +18,10 @@ function getMessageInstance(callback: (i: any) => void) {
   }
   Notification.newInstance({
     prefixCls,
-    transitionName: 'move-up',
+    transitionName,
     style: { top: defaultTop }, // 覆盖原来的样式
     getContainer,
+    maxCount,
   }, (instance: any) => {
     if (messageInstance) {
       callback(messageInstance);
@@ -37,7 +40,7 @@ function notice(
   type: NoticeType,
   onClose?: () => void,
 ) {
-  let iconType = ({
+  const iconType = ({
     info: 'info-circle',
     success: 'check-circle',
     error: 'cross-circle',
@@ -81,6 +84,8 @@ export interface ConfigOptions {
   duration?: number;
   prefixCls?: string;
   getContainer?: () => HTMLElement;
+  transitionName?: string;
+  maxCount?: number;
 }
 
 export default {
@@ -116,6 +121,14 @@ export default {
     }
     if (options.getContainer !== undefined) {
       getContainer = options.getContainer;
+    }
+    if (options.transitionName !== undefined) {
+      transitionName = options.transitionName;
+      messageInstance = null; // delete messageInstance for new transitionName
+    }
+    if (options.maxCount !== undefined) {
+      maxCount = options.maxCount;
+      messageInstance = null;
     }
   },
   destroy() {

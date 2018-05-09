@@ -54,6 +54,7 @@
 
     &-submenu-popup {
       position: absolute;
+      z-index: @zindex-dropdown;
     }
 
     &-item,
@@ -206,6 +207,9 @@
 .@{dropdown-prefix-cls}-link {
   .@{iconfont-css-prefix}-down {
     .iconfont-size-under-12px(10px);
+  }
+  .@{iconfont-css-prefix}-ellipsis {
+    text-shadow: 0 0 currentColor;
   }
 }
 

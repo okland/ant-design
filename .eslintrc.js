@@ -61,8 +61,10 @@ if (process.env.RUN_ENV === 'DEMO') {
     'no-console': 0,
     'no-plusplus': 0,
     'eol-last': 0,
+    'no-script-url': 0,
     'prefer-rest-params': 0,
     'react/no-multi-comp': 0,
+    'react/prefer-stateless-function': 0,
     'jsx-a11y/href-no-hash': 0,
     'import/newline-after-import': 0,
   });

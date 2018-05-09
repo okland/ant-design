@@ -6,8 +6,8 @@ import RcDatePicker from 'rc-calendar/lib/Picker';
 import classNames from 'classnames';
 import Icon from '../icon';
 import warning from '../_util/warning';
-import callMoment from '../_util/callMoment';
-import { RangePickerValue } from './interface';
+import interopDefault from '../_util/interopDefault';
+import { RangePickerValue, RangePickerPresetRange } from './interface';
 
 export interface RangePickerState {
   value?: RangePickerValue;
@@ -75,8 +75,8 @@ export default class RangePicker extends React.Component<any, RangePickerState> 
     super(props);
     const value = props.value || props.defaultValue || [];
     if (
-      value[0] && !moment.isMoment(value[0]) ||
-      value[1] && !moment.isMoment(value[1])
+      value[0] && !interopDefault(moment).isMoment(value[0]) ||
+      value[1] && !interopDefault(moment).isMoment(value[1])
     ) {
       throw new Error(
         'The value/defaultValue of RangePicker must be a moment object array after `antd@2.0`, ' +
@@ -86,7 +86,7 @@ export default class RangePicker extends React.Component<any, RangePickerState> 
     const pickerValue = !value || isEmptyArray(value) ? props.defaultPickerValue : value;
     this.state = {
       value,
-      showDate: pickerValueAdapter(pickerValue || callMoment(moment)),
+      showDate: pickerValueAdapter(pickerValue || interopDefault(moment)()),
       open: props.open,
       hoverValue: [],
     };
@@ -150,6 +150,35 @@ export default class RangePicker extends React.Component<any, RangePickerState> 
 
   handleHoverChange = (hoverValue: any) => this.setState({ hoverValue });
 
+  handleRangeMouseLeave = () => {
+    if (this.state.open) {
+      this.clearHoverValue();
+    }
+  }
+
+  handleCalendarInputSelect = (value: RangePickerValue) => {
+    if (!value[0]) {
+      return;
+    }
+    this.setState(({ showDate }) => ({
+      value,
+      showDate: getShowDateFromValue(value) || showDate,
+    }));
+  }
+
+  handleRangeClick = (value: RangePickerPresetRange) => {
+    if (typeof value === 'function') {
+      value = value();
+    }
+
+    this.setValue(value, true);
+
+    const { onOk } = this.props;
+    if (onOk) {
+      onOk(value);
+    }
+  }
+
   setValue(value: RangePickerValue, hidePanel?: boolean) {
     this.handleChange(value);
     if ((hidePanel || !this.props.showTime) && !('open' in this.props)) {
@@ -184,9 +213,9 @@ export default class RangePicker extends React.Component<any, RangePickerState> 
       return (
         <a
           key={range}
-          onClick={() => this.setValue(value, true)}
+          onClick={() => this.handleRangeClick(value)}
           onMouseEnter={() => this.setState({ hoverValue: value })}
-          onMouseLeave={this.clearHoverValue}
+          onMouseLeave={this.handleRangeMouseLeave}
         >
           {range}
         </a>
@@ -263,6 +292,7 @@ export default class RangePicker extends React.Component<any, RangePickerState> 
         onHoverChange={this.handleHoverChange}
         onPanelChange={props.onPanelChange}
         showToday={showToday}
+        onInputSelect={this.handleCalendarInputSelect}
       />
     );
 
@@ -311,6 +341,7 @@ export default class RangePicker extends React.Component<any, RangePickerState> 
     return (
       <span
         ref={this.savePicker}
+        id={props.id}
         className={classNames(props.className, props.pickerClass)}
         style={{ ...style, ...pickerStyle }}
         tabIndex={props.disabled ? -1 : 0}

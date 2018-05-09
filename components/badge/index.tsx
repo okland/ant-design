@@ -21,6 +21,7 @@ export interface BadgeProps {
   status?: 'success' | 'processing' | 'default' | 'error' | 'warning';
   text?: string;
   offset?: [number | string, number | string];
+  title?: string;
 }
 
 export default class Badge extends React.Component<BadgeProps, any> {
@@ -57,16 +58,16 @@ export default class Badge extends React.Component<BadgeProps, any> {
       status,
       text,
       offset,
+      title,
       ...restProps,
     } = this.props;
-    const isDot = dot || status;
     let displayCount = (count as number) > (overflowCount as number) ? `${overflowCount}+` : count;
+    const isZero = displayCount === '0' || displayCount === 0;
+    const isDot = (dot && !isZero) || status;
     // dot mode don't need count
     if (isDot) {
       displayCount = '';
     }
-
-    const isZero = displayCount === '0' || displayCount === 0;
     const isEmpty = displayCount === null || displayCount === undefined || displayCount === '';
     const hidden = (isEmpty || (isZero && !showZero)) && !isDot;
     const statusCls = classNames({
@@ -76,7 +77,7 @@ export default class Badge extends React.Component<BadgeProps, any> {
     const scrollNumberCls = classNames({
       [`${prefixCls}-dot`]: isDot,
       [`${prefixCls}-count`]: !isDot,
-      [`${prefixCls}-multiple-words`]: count && count.toString && count.toString().length > 1,
+      [`${prefixCls}-multiple-words`]: !isDot && count && count.toString && count.toString().length > 1,
       [`${prefixCls}-status-${status}`]: !!status,
     });
     const badgeCls = classNames(className, prefixCls, {
@@ -104,7 +105,7 @@ export default class Badge extends React.Component<BadgeProps, any> {
         data-show={!hidden}
         className={scrollNumberCls}
         count={displayCount}
-        title={count}
+        title={title || count}
         style={styleWithOffset}
       />
     );

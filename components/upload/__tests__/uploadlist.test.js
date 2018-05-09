@@ -86,7 +86,7 @@ describe('Upload List', () => {
     wrapper.find('input').simulate('change', {
       target: {
         files: [
-          { filename: 'foo.png' },
+          { name: 'foo.png' },
         ],
       },
     });
@@ -112,13 +112,13 @@ describe('Upload List', () => {
     wrapper.find('input').simulate('change', {
       target: {
         files: [
-          { filename: 'foo.png' },
+          { name: 'foo.png' },
         ],
       },
     });
   });
 
-  it('does not change filelist when beforeUpload returns false', () => {
+  it('does concat filelist when beforeUpload returns false', () => {
     const handleChange = jest.fn();
     const wrapper = mount(
       <Upload
@@ -134,13 +134,13 @@ describe('Upload List', () => {
     wrapper.find('input').simulate('change', {
       target: {
         files: [
-          { filename: 'foo.png' },
+          { name: 'foo.png' },
         ],
       },
     });
 
-    expect(wrapper.state().fileList).toBe(fileList);
-    expect(handleChange.mock.calls[0][0].fileList).toHaveLength(1);
+    expect(wrapper.state().fileList.length).toBe(fileList.length + 1);
+    expect(handleChange.mock.calls[0][0].fileList).toHaveLength(3);
   });
 
   // https://github.com/ant-design/ant-design/issues/7762
@@ -196,7 +196,7 @@ describe('Upload List', () => {
     wrapper.find('input').simulate('change', {
       target: {
         files: [
-          { filename: 'foo.png' },
+          { name: 'foo.png' },
         ],
       },
     });
@@ -258,7 +258,79 @@ describe('Upload List', () => {
       </Upload>
     );
     wrapper.setState({});
-    await delay(0);
+    await delay(200);
     expect(wrapper.state().fileList[2].thumbUrl).not.toBeFalsy();
+  });
+
+  it('should non-image format file preview', () => {
+    const list = [
+      {
+        name: 'not-image',
+        status: 'done',
+        uid: -3,
+        url: 'https://cdn.xxx.com/aaa.zip',
+        thumbUrl: 'data:application/zip;base64,UEsDBAoAAAAAADYZYkwAAAAAAAAAAAAAAAAdAAk',
+        originFileObj: new File([], 'aaa.zip'),
+      },
+      {
+        name: 'image',
+        status: 'done',
+        uid: -4,
+        url: 'https://cdn.xxx.com/aaa',
+      },
+      {
+        name: 'not-image',
+        status: 'done',
+        uid: -5,
+        url: 'https://cdn.xxx.com/aaa.xx',
+      },
+      {
+        name: 'not-image',
+        status: 'done',
+        uid: -6,
+        url: 'https://cdn.xxx.com/aaa.png/xx.xx',
+      },
+      {
+        name: 'image',
+        status: 'done',
+        uid: -7,
+        url: 'https://cdn.xxx.com/xx.xx/aaa.png',
+      },
+      {
+        name: 'image',
+        status: 'done',
+        uid: -8,
+        url: 'https://cdn.xxx.com/xx.xx/aaa.png',
+        thumbUrl: 'data:image/png;base64,UEsDBAoAAAAAADYZYkwAAAAAAAAAAAAAAAAdAAk',
+      },
+      {
+        name: 'image',
+        status: 'done',
+        uid: -9,
+        url: 'https://cdn.xxx.com/xx.xx/aaa.png?query=123',
+      },
+      {
+        name: 'image',
+        status: 'done',
+        uid: -10,
+        url: 'https://cdn.xxx.com/xx.xx/aaa.png#anchor',
+      },
+      {
+        name: 'image',
+        status: 'done',
+        uid: -11,
+        url: 'https://cdn.xxx.com/xx.xx/aaa.png?query=some.query.with.dot',
+      },
+    ];
+
+    const wrapper = mount(
+      <Upload
+        listType="picture"
+        defaultFileList={list}
+      >
+        <button>upload</button>
+      </Upload>
+    );
+    expect(wrapper.render()).toMatchSnapshot();
   });
 });

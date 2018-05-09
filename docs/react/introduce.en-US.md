@@ -30,7 +30,7 @@ Following the Ant Design specification, we developed a React UI library `antd` t
 - An enterprise-class UI design language for web applications.
 - A set of high-quality React components out of the box.
 - Written in TypeScript with complete defined types.
-- A npm + webpack + [dva](https://github.com/dvajs/dva) front-end development workflow.
+- The whole package of development and design resources and tools.
 
 ## Environment Support
 
@@ -41,7 +41,6 @@ Following the Ant Design specification, we developed a React UI library `antd` t
 ## Version
 
 - Stable: [![npm package](https://img.shields.io/npm/v/antd.svg?style=flat-square)](https://www.npmjs.org/package/antd)
-- Next：  [![npm (next)](https://img.shields.io/npm/v/antd/next.svg?style=flat-square)](https://www.npmjs.org/package/antd)
 
 You can subscribe to this feed for new version notifications: https://github.com/ant-design/ant-design/releases.atom
 
